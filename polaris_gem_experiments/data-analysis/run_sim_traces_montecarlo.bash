@@ -11,6 +11,7 @@ export GAZEBO_MASTER_URI=http://localhost:61828
 # Launch ROS nodes Gazebo simulator in background
 roslaunch gem_scenario_runner sim_traces_montecarlo.launch out_dir:=${OUT_DIR} \
     truth_file:=${TRUTH_FILE} \
+    max_trace_len:=100 \
     gui:=false controller:=pure_pursuit &
 ROSLAUNCH_PID=$!
 
