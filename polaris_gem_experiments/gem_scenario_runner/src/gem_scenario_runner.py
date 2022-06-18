@@ -183,12 +183,11 @@ def control_pure_pursuit(prcv_state: Percept) -> float:
 
 
 def control_stanley(prcv_state: Percept) -> float:
-    yaw_err, offset = prcv_state.yaw_err, prcv_state.offset
-    heading, distance = -yaw_err, -offset
+    psi, cte = prcv_state.yaw_err, prcv_state.offset
 
     # NOTE Convert to front axle assuming the lane is a line
-    distance_f = distance + WHEEL_BASE*np.sin(heading)
-    angle = -heading + np.arctan2(K_ST*-distance_f, SPEED)
+    cte_f = cte + WHEEL_BASE*np.sin(psi)
+    angle = psi + np.arctan2(K_ST*cte_f, SPEED)
     angle = np.clip(angle, -STEER_LIM, STEER_LIM)  # type: float  # no rounding performed
     return angle
 
