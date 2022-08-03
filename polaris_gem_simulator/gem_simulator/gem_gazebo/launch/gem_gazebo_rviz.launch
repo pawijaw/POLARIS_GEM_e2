@@ -50,7 +50,6 @@
     
     <!-- Load joint controller configurations from YAML file to parameter server -->
     <rosparam file="$(find gem_gazebo)/config/gem_joint_control_params.yaml" command="load" ns="/$(arg robot_name)"/>
-    <!-- <param name="tf_prefix" value="$(arg robot_name)"/> -->
 
     <!-- Load the joint controllers. One of these publishes the joint states to joint_states. -->
     <node name="controller_spawner_$(arg robot_name)" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)"
