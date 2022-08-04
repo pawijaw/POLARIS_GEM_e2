@@ -4,22 +4,22 @@
 
   <xacro:property name="steer_angle" value="0.61"/>
   <xacro:property name="PI" value="3.1415926835897931"/>
-  
+
   <xacro:property name="tyre_length" value="0.16"/>
   <xacro:property name="tyre_radius" value="0.295"/>
 
   <xacro:arg name="velodyne_points" default="false"/>
   <xacro:arg name="laser_points" default="false"/>
-  
+
   <xacro:property name="velodyne_points" value="$(arg velodyne_points)"/>
   <xacro:property name="laser_points" value="$(arg laser_points)"/>
-    
+
   <xacro:include filename="$(find gem_description)/urdf/gem.gazebo" />
 
   <xacro:include filename="$(find gem_description)/urdf/materials.xacro" />
 
   <xacro:include filename="$(find gem_description)/urdf/macros.xacro" />
-  
+
   <!-- ******************************************** Transmissions ********************************************* -->
 
   <xacro:wheel_transmission name="rear_left_wheel" />
@@ -30,13 +30,13 @@
 
   <xacro:steering_hinge_transmission name="left_steering_hinge" />
   <xacro:steering_hinge_transmission name="right_steering_hinge" />
-  
+
   <!-- ******************************************** Base link below ******************************************* -->
 
-  <link name="base_footprint"> 
+  <link name="base_footprint">
   </link>
 
-  <link name="base_link"> 
+  <link name="base_link">
   </link>
 
   <link name="center_link">
@@ -60,7 +60,7 @@
         ixz="0"
         iyy="597"
         iyz="0"
-        izz="465" />        
+        izz="465" />
     </inertial>
 
     <visual>
@@ -82,7 +82,7 @@
     </collision>
 
   </link>
-  
+
 
   <!-- ***************************************** Set vehicle load point ***************************************** -->
 
@@ -100,7 +100,7 @@
   </joint>
 
   <!-- ******************************************* Fixed links below ******************************************* -->
-  
+
   <link name="chair_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -127,7 +127,7 @@
       </geometry>
     </collision>
   </link>
-  
+
   <joint name="chair_joint" type="fixed">
     <origin xyz="0.001 0 -0.02" rpy="0 0 0" />
     <parent link="center_link" />
@@ -202,7 +202,7 @@
     <child link="top_rack_link" />
     <axis xyz="0 0 0" />
   </joint>
-  
+
   <link name="front_rack_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -229,14 +229,14 @@
       </geometry>
     </collision>
   </link>
-  
+
   <joint name="front_rack_joint" type="fixed">
     <origin xyz="1.352 0 -0.30594" rpy="1.5708 0 1.5708" />
     <parent link="center_link" />
     <child link="front_rack_link" />
     <axis xyz="0 0 0" />
   </joint>
-  
+
   <link name="rear_rack_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -263,7 +263,7 @@
       </geometry>
     </collision>
   </link>
-  
+
   <joint name="rear_rack_joint" type="fixed">
     <origin xyz="-1.302 0 -0.27168" rpy="1.5708 0 -1.5708" />
     <parent link="center_link" />
@@ -882,7 +882,7 @@
     <child link="front_right_emergency_button_link" />
     <axis xyz="0 1 0" />
   </joint>
-  
+
   <link name="rear_light_bar_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -918,7 +918,7 @@
 
   <!-- ***************************************** Wheel settings below ****************************************** -->
 
- 
+
   <link name="left_steering_hinge_link">
     <inertial>
       <mass value="1"/>
@@ -944,14 +944,14 @@
     <inertial>
       <mass value="11"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.38291" 
-               ixy="0.0" 
-               ixz="0.0" 
-               iyy="0.38291" 
-               iyz="0.0" 
+      <inertia ixx="0.38291"
+               ixy="0.0"
+               ixz="0.0"
+               iyy="0.38291"
+               iyz="0.0"
                izz="0.38291"/>
     </inertial>
-           
+
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -959,33 +959,33 @@
       </geometry>
       <material name="black"/>
     </visual>
-    
-    
+
+
     <collision>
-    
+
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.295"/>
-      </geometry>   
-            
+      </geometry>
+
     </collision>
-    
+
   </link>
-  
+
 
   <link name="front_right_wheel_link">
-  
+
     <inertial>
       <mass value="11"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.38291" 
-               ixy="0.0" 
-               ixz="0.0" 
-               iyy="0.38291" 
-               iyz="0.0" 
+      <inertia ixx="0.38291"
+               ixy="0.0"
+               ixz="0.0"
+               iyy="0.38291"
+               iyz="0.0"
                izz="0.38291"/>
     </inertial>
-    
+
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -993,30 +993,30 @@
       </geometry>
       <material name="black" />
     </visual>
-    
+
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.295"/>
-      </geometry>    
+      </geometry>
     </collision>
-    
+
   </link>
-  
-    
+
+
   <link name="rear_left_wheel_link">
-  
+
     <inertial>
       <mass value="11"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.38291" 
-               ixy="0.0" 
-               ixz="0.0" 
-               iyy="0.38291" 
-               iyz="0.0" 
+      <inertia ixx="0.38291"
+               ixy="0.0"
+               ixz="0.0"
+               iyy="0.38291"
+               iyz="0.0"
                izz="0.38291"/>
     </inertial>
-    
+
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -1024,30 +1024,30 @@
       </geometry>
       <material name="black"/>
     </visual>
-    
+
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.295"/>
-      </geometry>    
+      </geometry>
     </collision>
-    
+
   </link>
- 
- 
+
+
   <link name="rear_right_wheel_link">
-  
+
     <inertial>
       <mass value="11"/>
       <origin xyz="0 0 0"/>
-      <inertia ixx="0.38291" 
-               ixy="0.0" 
-               ixz="0.0" 
-               iyy="0.38291" 
-               iyz="0.0" 
+      <inertia ixx="0.38291"
+               ixy="0.0"
+               ixz="0.0"
+               iyy="0.38291"
+               iyz="0.0"
                izz="0.38291"/>
     </inertial>
-    
+
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -1055,22 +1055,22 @@
       </geometry>
       <material name="black"/>
     </visual>
-    
+
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.295"/>
-      </geometry>    
+      </geometry>
     </collision>
-    
+
   </link>
-  
+
   <!-- **************************************************************************** -->
-  
+
   <joint name="left_steering_hinge_joint" type="revolute">
     <parent link="center_link"/>
     <child link="left_steering_hinge_link"/>
-    <origin xyz="0.88 0.6 -0.151" rpy="0 0 0"/>    
+    <origin xyz="0.88 0.6 -0.151" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="${-steer_angle}" upper="${steer_angle}" effort="100" velocity="0.5"/>
   </joint>
@@ -1095,23 +1095,23 @@
     <joint_properties damping="10" friction="10.0"/>
     -->
   </joint>
-    
+
   <joint name="front_right_wheel_joint" type="continuous">
     <parent link="right_steering_hinge_link"/>
     <child link="front_right_wheel_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>  
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="1000" velocity="100.0"/>
   </joint>
 
   <joint name="rear_left_wheel_joint" type="continuous">
     <origin xyz="-0.87 0.6 -0.151" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/> 
+    <axis xyz="0 1 0"/>
     <parent link="center_link"/>
     <child link="rear_left_wheel_link"/>
     <limit effort="1000" velocity="100.0"/>
   </joint>
-  
+
   <joint name="rear_right_wheel_joint" type="continuous">
     <origin xyz="-0.87 -0.6 -0.151" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
@@ -1128,27 +1128,27 @@
   <!-- ************************** Top LiDAR ************************** -->
 
   <xacro:if value="${velodyne_points}">
-  
+
     <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-    
+
     <xacro:VLP-16 parent="center_link" name="velodyne" topic="/$(arg robotname)/velodyne_points" hz="10" samples="440" gpu="false">
-      <origin xyz="-0.12 0 1.51" rpy="0 0 0" /> 
+      <origin xyz="-0.12 0 1.51" rpy="0 0 0" />
     </xacro:VLP-16>
-        
+
   </xacro:if>
-  
+
   <!-- ************************* Front Laser ************************* -->
 
   <xacro:if value="${laser_points}">
-  
+
     <xacro:include filename="$(find gem_description)/urdf/sick_laser_points.gazebo"/>
-    
+
     <xacro:property name="front_laser_size" value="0.25"/>
-    
+
     <xacro:property name="front_laser_mass" value="1"/>
-  
+
     <link name="$(arg robotname)/front_laser_link">
-    
+
       <collision>
         <origin xyz="0 0 0" rpy="0 0.0 0"/>
         <geometry>
@@ -1167,24 +1167,24 @@
       <inertial>
         <mass value="${front_laser_mass}" />
         <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="${(1/6)*front_laser_mass*front_laser_size*front_laser_size}" ixy="0" ixz="0" 
-                 iyy="${(1/6)*front_laser_mass*front_laser_size*front_laser_size}" iyz="0" 
+        <inertia ixx="${(1/6)*front_laser_mass*front_laser_size*front_laser_size}" ixy="0" ixz="0"
+                 iyy="${(1/6)*front_laser_mass*front_laser_size*front_laser_size}" iyz="0"
                  izz="${(1/6)*front_laser_mass*front_laser_size*front_laser_size}" />
       </inertial>
-      
-    </link>  
+
+    </link>
 
     <joint name="front_laser_joint" type="fixed">
       <origin xyz="1.50 0 0" rpy="0 0 0"/>
       <parent link="center_link"/>
       <child link="$(arg robotname)/front_laser_link"/>
-    </joint>    
-    
+    </joint>
+
   </xacro:if>
-    
-    
+
+
   <!-- ************************* Front Camera ************************* -->
-  
+
   <link name="front_single_camera_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -1211,12 +1211,12 @@
     <parent link="center_link"/>
     <child link="front_single_camera_link"/>
   </joint>
-  
+
 
   <!-- ************************ Stereo Camera ************************ -->
-  
+
   <!--
-  
+
   <link name="stereo_camera_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -1244,11 +1244,11 @@
     <parent link="front_camera_link"/>
     <child link="stereo_camera_link"/>
   </joint>
-  
+
   -->
 
   <!-- ***************************** IMU ***************************** -->
-  
+
   <link name="IMU_link">
 
     <collision>
@@ -1287,7 +1287,7 @@
   </joint>
 
   <!-- ***************************** GPS ***************************** -->
-  
+
   <link name="GPS_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -1323,9 +1323,9 @@
 
 
   <!-- ************************* Front Sonar ************************* -->
-  
+
   <!--
-  
+
   <link name="front_sonar_link">
     <inertial>
       <mass value="0.001" />
@@ -1352,7 +1352,7 @@
     <parent link="front_rack_link"/>
     <child link="front_sonar_link"/>
   </joint>
-  
+
   -->
 
   <!-- ************************* Rear Sonar ************************** -->
@@ -1383,9 +1383,9 @@
     <parent link="rear_rack_link"/>
     <child link="rear_sonar_link"/>
   </joint>
-  
+
   <!-- *************************************************************** -->
-  
+
 </robot>
 
 

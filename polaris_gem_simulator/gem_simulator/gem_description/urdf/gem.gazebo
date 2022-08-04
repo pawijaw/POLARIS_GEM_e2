@@ -30,7 +30,7 @@
     <maxVel>100.0</maxVel>
     <material>Gazebo/Blue</material>
   </gazebo>
-  
+
   <gazebo reference="front_left_wheel_link">
     <mu1>0.9</mu1>
     <mu2>1000000</mu2>
@@ -46,7 +46,7 @@
     <kp>1e8</kp>
     <material>Gazebo/Black</material>
   </gazebo>
-  
+
   <gazebo reference="rear_left_wheel_link">
     <mu1>0.9</mu1>
     <mu2>1000000</mu2>
@@ -61,9 +61,9 @@
     <minDepth>0.005</minDepth>
     <kp>1e8</kp>
     <material>Gazebo/Black</material>
-  </gazebo>  
-   
-  <!-- ************************************** --> 
+  </gazebo>
+
+  <!-- ************************************** -->
 
   <!-- colors used by Gazebo -->
 
@@ -190,7 +190,7 @@
   <gazebo reference="stereo_camera_link">
     <material>Gazebo/Red</material>
   </gazebo>
- 
+
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <legacyModeNS>true</legacyModeNS>
@@ -200,7 +200,7 @@
 
 
   <!-- ***************************** camera ***************************** -->
-  
+
   <gazebo reference="front_single_camera_link">
     <sensor type="camera" name="front_single_camera_sensor">
       <update_rate>30.0</update_rate>
@@ -260,24 +260,24 @@
       <pose>0 0 0 0 0 0</pose>
     </sensor>
   </gazebo>
-  
-    
+
+
   <!-- ***************************** GPS ***************************** -->
-  
+
   <gazebo>
-  
+
     <plugin name="gazebo_ros_gps" filename="libhector_gazebo_ros_gps.so">
     <updateRate>20.0</updateRate>
     <bodyName>GPS_link</bodyName>
     <frameId>GPS_link</frameId>
     <topicName>gps/fix</topicName>
     <velocityTopicName>gps/fix_velocity</velocityTopicName>
-    
+
     <referenceLatitude>40.09302494</referenceLatitude>
     <referenceLongitude>-88.23575484</referenceLongitude>
     <referenceAltitude>220</referenceAltitude>
     <referenceHeading>90</referenceHeading>
-        
+
     <!--
     <offset>0 0 0</offset>
     <drift>0.001 0.001 0.001</drift>
@@ -287,16 +287,16 @@
     -->
 
     <offset>0 0 0</offset>
-    <drift>0.001 0.001 0.001</drift>    
+    <drift>0.001 0.001 0.001</drift>
     <gaussianNoise>0.01 0.01 0.01</gaussianNoise>
     <velocityDrift>0 0 0</velocityDrift>
     <velocityGaussianNoise>0.05 0.05 0.05</velocityGaussianNoise>
-    
+
     </plugin>
   </gazebo>
-  
+
   <!-- ***************************** Front Sonar ***************************** -->
-  
+
   <gazebo reference="front_sonar_link">
     <sensor type="ray" name="front_sonar_sensor">
       <always_on>true</always_on>
@@ -333,7 +333,7 @@
   </gazebo>
 
   <!-- ***************************** Rear Sonar ***************************** -->
-  
+
   <gazebo reference="rear_sonar_link">
     <sensor type="ray" name="rear_sonar_sensor">
       <always_on>true</always_on>
@@ -370,7 +370,7 @@
   </gazebo>
 
   <!-- ***************************** stereo camera ***************************** -->
-  
+
   <gazebo reference="stereo_camera_link">
     <sensor type="multicamera" name="stereo_camera">
       <update_rate>30.0</update_rate>

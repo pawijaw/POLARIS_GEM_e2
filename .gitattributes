@@ -53,6 +53,8 @@ README text
 *.png binary
 *.jpg binary
 *.pdf binary
+## Binary STL file for CAD models
+*.STL binary
 
 # Git LFS to handle dataset
 *.bag filter=lfs diff=lfs merge=lfs -text
