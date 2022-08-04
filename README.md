@@ -107,6 +107,15 @@ $ roslaunch gem_gazebo gem_sensor_info.launch
 
 Coming soon...
 
+## Known Bugs
+
++ Currently the latest Velodyn LiDAR sensor for Gazebo package (1.0.12) on Ubuntu 20.04,
+ `velodyne_simulator`, publishes ROS messages with incorrect `frame_id` field.
+  The field is appended with a prefix that is the namespace of the ROS node.
+  TF and TF2 has deprecated the `tf_prefix` feature and does not recommand adding the
+  prefix, and therefore RViz was not able to visualize the Velodyn LiDAR scan.
+  See http://wiki.ros.org/tf2/Migration
+
 ## Developers:
 + Hang Cui <hangcui1201@gmail.com>
 
