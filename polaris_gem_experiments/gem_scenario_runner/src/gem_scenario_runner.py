@@ -155,27 +155,26 @@ def set_light_properties(light_name, light_level: int) -> None:
 
 
 def control_pure_pursuit(prcv_state: Percept) -> float:
-    yaw_err, offset = prcv_state.yaw_err, prcv_state.offset
+    psi, cte = prcv_state.yaw_err, prcv_state.offset
     radius = np.inf if prcv_state.curvature == 0 else 1.0 / prcv_state.curvature
-    heading, distance = -yaw_err, -offset
 
     # Let β be the angle between tangent line of curve path and the line from rear axle to look ahead point
     # based on cosine rule of triangles: cos(A) = (b^2+c^2-a^2)/2bc
-    # cos(π/2+β) = (lookahead^2 + (-distance+radius)^2 - radius^2)/(2*lookahead*(-distance+radius))
-    #            = -distance/lookahead + (lookahead^2 - distance^2)/(2*lookahead*(-distance+radius))
-    #            ~ -distance/lookahead  # when radius==inf
+    # cos(π/2+β) = (lookahead^2 + (cte+radius)^2 - radius^2)/(2*lookahead*(cte+radius))
+    #            = cte/lookahead + (lookahead^2 - cte^2)/(2*lookahead*(cte+radius))
+    #            ~ cte/lookahead  # when radius==inf
     # Further, cos(π/2+β) = sinβ
-    # -> β = arcsin(-distance/lookahead)
+    # -> β = arcsin(cte/lookahead)
     if np.isinf(radius):
-        beta = np.arcsin(-distance/LOOK_AHEAD)
-    elif abs(distance) <= LOOK_AHEAD:
-        sin_beta = -distance/LOOK_AHEAD + (LOOK_AHEAD**2 - distance**2)/(2*LOOK_AHEAD*(-distance+radius))
+        beta = np.arcsin(cte/LOOK_AHEAD)
+    elif abs(cte) <= LOOK_AHEAD:
+        sin_beta = cte/LOOK_AHEAD + (LOOK_AHEAD**2 - cte**2)/(2*LOOK_AHEAD*(cte+radius))
         beta = np.arcsin(sin_beta)
     else:
         beta = -np.pi/2
 
     # calculate steering angle
-    alpha = beta - heading
+    alpha = beta + psi
     angle_i = np.arctan((2 * K_PP * WHEEL_BASE * np.sin(alpha)) / LOOK_AHEAD)
     angle = angle_i * 2
     angle = np.clip(angle, -STEER_LIM, STEER_LIM)  # type: float  # no rounding performed
