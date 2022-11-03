@@ -26,7 +26,7 @@ STEER_LIM = 0.61  # radian
 K_PP = 0.285  # Proportional Gain for Pure Pursuit
 K_ST = 0.45  # Proportional Gain for Stanley
 SPEED = 2.8  # meter/second
-CYCLE_SEC = 0.1  # second
+CYCLE_SEC = 0.05  # second
 # endregion
 
 LaneDetectScene = NamedTuple("LaneDetectScene", [
@@ -181,12 +181,21 @@ def control_pure_pursuit(prcv_state: Percept) -> float:
     return angle
 
 
-def control_stanley(prcv_state: Percept) -> float:
-    psi, cte = prcv_state.yaw_err, prcv_state.offset
-
+def to_front_axle(prcv_state: Percept) -> Percept:
+    if prcv_state.curvature != 0.0:
+        raise NotImplementedError("TODO: Support converting to front axle in curve lanes.")
     # NOTE Convert to front axle assuming the lane is a line
-    cte_f = cte + WHEEL_BASE*np.sin(psi)
-    angle = psi + np.arctan2(K_ST*cte_f, SPEED)
+    return Percept(
+        yaw_err=prcv_state.yaw_err,
+        offset=prcv_state.offset + WHEEL_BASE*np.sin(prcv_state.yaw_err),
+        curvature=prcv_state.curvature
+    )
+
+
+def control_stanley(front_prcv_state: Percept) -> float:
+    psi, cte = front_prcv_state.yaw_err, front_prcv_state.offset
+
+    angle = psi + np.arctan2(K_ST*cte, SPEED)
     angle = np.clip(angle, -STEER_LIM, STEER_LIM)  # type: float  # no rounding performed
     return angle
 

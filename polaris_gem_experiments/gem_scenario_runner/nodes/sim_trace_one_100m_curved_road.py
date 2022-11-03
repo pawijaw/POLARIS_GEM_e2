@@ -27,7 +27,7 @@ from gem_lanenet.lanenet_w_line_fit import LaneNetWLineFit
 
 
 from gem_scenario_runner import \
-    euler_to_quat, pose_to_xy_yaw, control_pure_pursuit, dynamics, control_stanley, \
+    euler_to_quat, pose_to_xy_yaw, control_pure_pursuit, dynamics, control_stanley, to_front_axle, \
     get_uniform_random_light_level, set_light_properties, set_model_pose, pause_physics, unpause_physics, \
     LaneDetectScene, Percept, State, state_list_to_ndarray, percept_list_to_ndarray
 
@@ -255,7 +255,8 @@ def main() -> None:
                 start_dynamics = time.time()
 
                 if controller == "stanley":
-                    next_pose = dynamics(curr_pose, control_stanley(prcv_state))
+                    front_prcv_state = to_front_axle(prcv_state)
+                    next_pose = dynamics(curr_pose, control_stanley(front_prcv_state))
                 elif controller == "pure_pursuit":
                     next_pose = dynamics(curr_pose, control_pure_pursuit(prcv_state))
                 else:
