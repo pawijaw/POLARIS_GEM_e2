@@ -27,6 +27,7 @@ class PurePursuitLaneCentering:
 
         self._lane = SimpleLaneRepr(0.0, 0.0, 0.0)
         self._f_vel = 0.0
+        self.m_active = False
 
     def lane_msg_cb(self, msg: SimpleLaneStamped) -> None:
         # This callback is called by the subscriber thread,

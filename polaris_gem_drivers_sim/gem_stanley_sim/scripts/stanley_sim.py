@@ -31,15 +31,20 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 
+# Robot Manager Headers
+from gem_pure_pursuit_sim.srv import WaypointRequestSrv,WaypointRequestSrvResponse
+
 
 class Stanley(object):
     
     def __init__(self):
 
+        self.run = False
+        
         self.rate       = rospy.Rate(20)
         self.wheelbase  = 1.75 # meters
 
-        self.read_waypoints() # read waypoints
+        #self.read_waypoints() # read waypoints -- waypoints are received from Robot Manager Node
 
         self.ackermann_msg = AckermannDrive()
         self.ackermann_msg.steering_angle_velocity = 0.0
@@ -49,6 +54,15 @@ class Stanley(object):
         self.ackermann_msg.steering_angle          = 0.0
 
         self.ackermann_pub = rospy.Publisher('/gem/ackermann_cmd', AckermannDrive, queue_size=1)
+        
+    # Set waypoints recevied from ROS service
+    def set_waypoints(self, path_x_vals, path_y_vals, path_yaw_vals):
+
+        # turn path_points into a list of floats to eliminate the need for casts
+        self.path_points_x   = path_x_vals
+        self.path_points_y   = path_y_vals
+        self.path_points_yaw = path_yaw_vals
+        self.dist_arr        = np.zeros(len(self.path_points_x))
 
     def read_waypoints(self):
 
@@ -100,6 +114,11 @@ class Stanley(object):
     def start_stanley(self):
         
         while not rospy.is_shutdown():
+            
+            # Skip iteration if not acive
+            if not self.run:
+                self.rate.sleep()
+                continue
 
             # get current position and orientation in the world frame
             # reference point is located at the center of rear axle
@@ -127,6 +146,10 @@ class Stanley(object):
 
             # vehicle heading 
             theta = curr_yaw
+            
+            if len(self.path_points_x) < target_index:
+                self.rate.sleep()
+                continue
 
             # approximate heading of path at (path_x, path_y)
             path_x      = self.path_points_x[target_index]
@@ -145,7 +168,7 @@ class Stanley(object):
             theta_e  = round(np.degrees(theta_e), 1)
 
             ef = round(ef,3)
-            print("Crosstrack Error: " + str(ef) + ", Heading Error: " + str(theta_e))
+            #print("Crosstrack Error: " + str(ef) + ", Heading Error: " + str(theta_e))
 
             # implement constant pure pursuit controller
             self.ackermann_msg.speed          = 2.8
@@ -154,14 +177,47 @@ class Stanley(object):
 
             self.rate.sleep()
 
+driverAlgo = None
+
+def handle_wp_req(req):
+    global driverAlgo
+
+    if driverAlgo is not None:
+        if len(req.xVals) == 0:
+            driverAlgo.run = False
+            
+            resp = WaypointRequestSrvResponse() 
+            resp.success = True
+            resp.message = "stanley_sim_node: Stopping"
+            print("[stanley_sim]: Deactivating navigation")
+            
+            return resp
+        else:
+            print("[stanley_sim]: Starting navigation")
+            
+            driverAlgo.set_waypoints(req.xVals, req.yVals, req.yawVals)
+            driverAlgo.run = True
+            
+            resp = WaypointRequestSrvResponse() 
+            resp.success = True
+            resp.message = "stanley_sim_sim_node: Accepted new waypoint list"
+            
+            return resp
+    else:
+        resp = WaypointRequestSrvResponse() 
+        resp.success = False
+        resp.message = "stanley_sim_sim_node: Failed to load waypoint list"
+        return resp
 
 def stanley():
-
+    global driverAlgo
     rospy.init_node('stanley_sim_node', anonymous=True)
-    sl = Stanley()
+    driverAlgo = Stanley()
+    
+    wp_service = rospy.Service('stanley_waypoint_request', WaypointRequestSrv, handle_wp_req)
 
     try:
-        sl.start_stanley()
+        driverAlgo.start_stanley()
     except rospy.ROSInterruptException:
         pass
 

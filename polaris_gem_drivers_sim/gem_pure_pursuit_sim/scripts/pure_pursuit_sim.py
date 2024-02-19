@@ -18,6 +18,7 @@ import csv
 import math
 import numpy as np
 from numpy import linalg as la
+import threading
 
 # ROS Headers
 import rospy
@@ -31,17 +32,25 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 
+# Robot Manager headers
+from gem_pure_pursuit_sim.srv import WaypointRequestSrv,WaypointRequestSrvResponse
+
+
+
 class PurePursuit(object):
+    
+    
     
     def __init__(self):
 
+        self.run = False
         self.rate       = rospy.Rate(20)
 
         self.look_ahead = 6    # meters
         self.wheelbase  = 1.75 # meters
         self.goal       = 0
 
-        self.read_waypoints() # read waypoints
+        #self.read_waypoints() # read waypoints -- waypoints are received from Robot Manager Service
 
         self.ackermann_msg = AckermannDrive()
         self.ackermann_msg.steering_angle_velocity = 0.0
@@ -51,8 +60,17 @@ class PurePursuit(object):
         self.ackermann_msg.steering_angle          = 0.0
 
         self.ackermann_pub = rospy.Publisher('/gem/ackermann_cmd', AckermannDrive, queue_size=1)
+        
+    # Set waypoints recevied over ROS service
+    def set_waypoints(self, path_x_vals, path_y_vals, path_yaw_vals):
 
+        # turn path_points into a list of floats to eliminate the need for casts
+        self.path_points_x   = path_x_vals
+        self.path_points_y   = path_y_vals
+        self.path_points_yaw = path_yaw_vals
+        self.dist_arr        = np.zeros(len(self.path_points_x))
 
+        
     # import waypoints.csv into a list (path_points)
     def read_waypoints(self):
 
@@ -102,64 +120,114 @@ class PurePursuit(object):
     def start_pp(self):
         
         while not rospy.is_shutdown():
+            
+            # Skip iteration of not active
+            if not self.run:
+                self.rate.sleep()
+                continue
 
             # get current position and orientation in the world frame
             curr_x, curr_y, curr_yaw = self.get_gem_pose()
 
             self.path_points_x = np.array(self.path_points_x)
             self.path_points_y = np.array(self.path_points_y)
+            
+            try:
 
-            # finding the distance of each way point from the current position
-            for i in range(len(self.path_points_x)):
-                self.dist_arr[i] = self.dist((self.path_points_x[i], self.path_points_y[i]), (curr_x, curr_y))
+                # finding the distance of each way point from the current position
+                for i in range(len(self.path_points_x)):
+                    self.dist_arr[i] = self.dist((self.path_points_x[i], self.path_points_y[i]), (curr_x, curr_y))
 
-            # finding those points which are less than the look ahead distance (will be behind and ahead of the vehicle)
-            goal_arr = np.where( (self.dist_arr < self.look_ahead + 0.3) & (self.dist_arr > self.look_ahead - 0.3) )[0]
+                # finding those points which are less than the look ahead distance (will be behind and ahead of the vehicle)
+                goal_arr = np.where( (self.dist_arr < self.look_ahead + 0.3) & (self.dist_arr > self.look_ahead - 0.3) )[0]
 
-            # finding the goal point which is the last in the set of points less than the lookahead distance
-            for idx in goal_arr:
-                v1 = [self.path_points_x[idx]-curr_x , self.path_points_y[idx]-curr_y]
-                v2 = [np.cos(curr_yaw), np.sin(curr_yaw)]
-                temp_angle = self.find_angle(v1,v2)
-                if abs(temp_angle) < np.pi/2:
-                    self.goal = idx
-                    break
+                # finding the goal point which is the last in the set of points less than the lookahead distance
+                for idx in goal_arr:
+                    v1 = [self.path_points_x[idx]-curr_x , self.path_points_y[idx]-curr_y]
+                    v2 = [np.cos(curr_yaw), np.sin(curr_yaw)]
+                    temp_angle = self.find_angle(v1,v2)
+                    if abs(temp_angle) < np.pi/2:
+                        self.goal = idx
+                        break
 
-            # finding the distance between the goal point and the vehicle
-            # true look-ahead distance between a waypoint and current position
-            L = self.dist_arr[self.goal]
+                # finding the distance between the goal point and the vehicle
+                # true look-ahead distance between a waypoint and current position
+                L = self.dist_arr[self.goal]
 
-            # transforming the goal point into the vehicle coordinate frame 
-            gvcx = self.path_points_x[self.goal] - curr_x
-            gvcy = self.path_points_y[self.goal] - curr_y
-            goal_x_veh_coord = gvcx*np.cos(curr_yaw) + gvcy*np.sin(curr_yaw)
-            goal_y_veh_coord = gvcy*np.cos(curr_yaw) - gvcx*np.sin(curr_yaw)
+                # transforming the goal point into the vehicle coordinate frame 
+                gvcx = self.path_points_x[self.goal] - curr_x
+                gvcy = self.path_points_y[self.goal] - curr_y
+                goal_x_veh_coord = gvcx*np.cos(curr_yaw) + gvcy*np.sin(curr_yaw)
+                goal_y_veh_coord = gvcy*np.cos(curr_yaw) - gvcx*np.sin(curr_yaw)
 
-            # find the curvature and the angle 
-            alpha   = self.path_points_yaw[self.goal] - (curr_yaw)
-            k       = 0.285
-            angle_i = math.atan((2 * k * self.wheelbase * math.sin(alpha)) / L) 
-            angle   = angle_i*2
-            angle   = round(np.clip(angle, -0.61, 0.61), 3)
+                # find the curvature and the angle 
+                alpha   = self.path_points_yaw[self.goal] - (curr_yaw)
+                k       = 0.285
+                angle_i = math.atan((2 * k * self.wheelbase * math.sin(alpha)) / L) 
+                angle   = angle_i*2
+                angle   = round(np.clip(angle, -0.61, 0.61), 3)
 
-            ct_error = round(np.sin(alpha) * L, 3)
+                ct_error = round(np.sin(alpha) * L, 3)
 
-            print("Crosstrack Error: " + str(ct_error))
+                #print("Crosstrack Error: " + str(ct_error))
 
-            # implement constant pure pursuit controller
-            self.ackermann_msg.speed          = 2.8
-            self.ackermann_msg.steering_angle = angle
-            self.ackermann_pub.publish(self.ackermann_msg)
+                # implement constant pure pursuit controller
+                self.ackermann_msg.speed          = 2.8
+                self.ackermann_msg.steering_angle = angle
+                self.ackermann_pub.publish(self.ackermann_msg)
+                
+            except Exception as ex:
+                pass
 
             self.rate.sleep()
+            
+
+pp = None
+
+def handle_wp_req(req):
+    global pp
+
+    if pp is not None:
+        if len(req.xVals) == 0:
+            pp.run = False
+            
+            resp = WaypointRequestSrvResponse() 
+            resp.success = True
+            resp.message = "pure_pursuit_sim_node: Stopping"
+            print("[pure_pursuit_sim]: Deactivating navigation")
+            
+            return resp
+        else:
+            print("[pure_pursuit_sim]: Starting navigation")
+            
+            pp.set_waypoints(req.xVals, req.yVals, req.yawVals)
+            pp.run = True
+            
+            resp = WaypointRequestSrvResponse() 
+            resp.success = True
+            resp.message = "pure_pursuit_sim_node: Accepted new waypoint list"
+            
+            return resp
+    else:
+        resp = WaypointRequestSrvResponse() 
+        resp.success = False
+        resp.message = "pure_pursuit_sim_node: Failed to load waypoint list"
+        return resp
+   
 
 def pure_pursuit():
-
+    global pp
+    
     rospy.init_node('pure_pursuit_sim_node', anonymous=True)
+
     pp = PurePursuit()
+    
+    wp_service = rospy.Service('pp_waypoint_request', WaypointRequestSrv, handle_wp_req)
+
 
     try:
         pp.start_pp()
+                
     except rospy.ROSInterruptException:
         pass
 

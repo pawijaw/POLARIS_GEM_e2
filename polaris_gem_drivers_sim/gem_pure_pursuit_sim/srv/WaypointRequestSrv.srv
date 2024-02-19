@@ -1,0 +1,7 @@
+float32[] xVals
+float32[] yVals
+float32[] yawVals
+
+---
+bool success
+string message

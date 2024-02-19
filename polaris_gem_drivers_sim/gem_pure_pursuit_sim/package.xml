@@ -7,6 +7,8 @@
   <maintainer email="hangcui1201@gmail.com"> Hang Cui </maintainer>
   <url type="repository">https://github.com/hangcui1201/POLARIS_GEM_e2.git</url>
   <license>BSD</license>
+  
+  <build_depend>message_generation</build_depend>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cv_bridge</build_depend>
   <build_depend>roscpp</build_depend>
@@ -35,6 +37,7 @@
   <exec_depend>ackermann_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>  
   <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>message_runtime</exec_depend> 
     
   <!-- The export tag contains other, unspecified, tags -->
   <export>

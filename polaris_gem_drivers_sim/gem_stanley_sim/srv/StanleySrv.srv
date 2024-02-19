@@ -1,0 +1,6 @@
+float32[] xVals
+float32[] yVals
+float32[] yawVals
+
+---
+string result
