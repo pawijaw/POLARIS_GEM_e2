@@ -1,4 +1,4 @@
-# This is a fork of the original reopsitory
+# This is a fork of the original repository
 This repository contains changes needed to suppot [POLARIS_GEM_e2_manager](https://github.com/pawijaw/POLARIS_GEM_e2_manager)
 
 
